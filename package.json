@@ -4,6 +4,14 @@
 	"description": "A pi extension that shows live model speed with a configurable RunCat speed badge.",
 	"type": "module",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/somus/pi-speeed.git"
+	},
+	"homepage": "https://github.com/somus/pi-speeed#readme",
+	"bugs": {
+		"url": "https://github.com/somus/pi-speeed/issues"
+	},
 	"keywords": [
 		"pi-package",
 		"pi-extension",
