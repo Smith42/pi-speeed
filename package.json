@@ -1,0 +1,54 @@
+{
+	"name": "pi-speeed",
+	"version": "0.1.0",
+	"description": "A pi extension that shows live model speed with a configurable RunCat speed badge.",
+	"type": "module",
+	"license": "MIT",
+	"keywords": [
+		"pi-package",
+		"pi-extension",
+		"pi",
+		"runcat",
+		"tokens",
+		"tok/s"
+	],
+	"scripts": {
+		"postinstall": "node scripts/install-font.mjs",
+		"install-font": "node scripts/install-font.mjs",
+		"check": "biome check .",
+		"check:fix": "biome check --write .",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"prepack": "npm run check && npm run typecheck && npm test"
+	},
+	"files": [
+		"src/",
+		"assets/",
+		"scripts/",
+		"README.md",
+		"LICENSE",
+		"tsconfig.json"
+	],
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.16",
+		"@earendil-works/pi-ai": "^0.79.0",
+		"@earendil-works/pi-coding-agent": "^0.79.0",
+		"@earendil-works/pi-tui": "^0.79.0",
+		"@types/node": "^24.13.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
