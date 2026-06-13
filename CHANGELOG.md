@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/somus/pi-speeed/compare/v0.3.0...v0.4.0) (2026-06-13)
+
+
+### Features
+
+* smooth speed display transitions ([35c45a7](https://github.com/somus/pi-speeed/commit/35c45a7aa12fdd5a99b79e8c849674d41b4e3bb1))
+
 ## [0.3.0](https://github.com/somus/pi-speeed/compare/v0.2.0...v0.3.0) (2026-06-13)
 
 
