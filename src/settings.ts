@@ -59,7 +59,6 @@ export async function openSettings(
 			`RunCat default: ${config.defaultRuncatIntervalMs}ms`,
 			`RunCat range: ${config.minRuncatIntervalMs}-${config.maxRuncatIntervalMs}ms`,
 			`RunCat scale: ${config.runcatScale}`,
-			`Correction: ${config.correction ? "on" : "off"}`,
 			`Persist session stats: ${config.persistStats ? "on" : "off"}`,
 			"Show aggregate stats",
 			"Reset defaults",
@@ -101,7 +100,6 @@ export async function openSettings(
 				config.runcatScale,
 				[3000, 4500, 6000, 9000, 12000],
 			);
-		else if (choice.startsWith("Correction:")) config.correction = !config.correction;
 		else if (choice.startsWith("Persist session stats:")) config.persistStats = !config.persistStats;
 		else if (choice === "Show aggregate stats") {
 			await showReadOnlyPanel(ctx, "pi-speeed stats", summarizeStats(loadStats()));

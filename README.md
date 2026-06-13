@@ -4,7 +4,7 @@ A pi extension that shows assistant output speed with a configurable RunCat spee
 
 ## Features
 
-- Live median output speed while the assistant is streaming.
+- Live output speed while the assistant is streaming, with bursty-stream guardrails.
 - Footer status for average speed across the current session.
 - RunCat working indicator whose animation speed follows token speed.
 - Custom speed labels, footer prefixes, and working text presets.
@@ -80,10 +80,17 @@ Configurable from `/pi-speeed`:
 - Render interval
 - RunCat default/min/max frame interval
 - RunCat speed scale
-- Final-token correction on/off
 - Persist session stats on/off
 
 When `Label` or `Working prefix` is set to `Random`, pi-speeed chooses once per agent run and keeps that choice until the run ends.
+
+Advanced token-speed options are intentionally hidden from the settings UI but can be edited in the config file:
+
+- `slidingWindowMs`
+- `minReliableDurationMs`
+- `maxDisplayTokS`
+- `useProviderTokens`
+- `countStrategy`
 
 Settings are stored at:
 
@@ -107,8 +114,8 @@ The footer's live status shows the speed-eligible average for the current sessio
 - output tokens
 - total duration
 - average tok/s
-- median of message median tok/s
-- fastest/slowest median tok/s
+- median message tok/s
+- fastest/slowest message tok/s
 - per-model stats
 - recent 200 responses
 
@@ -139,7 +146,7 @@ Source inspiration: <https://github.com/FredySandoval/pi-runcat>
 
 ## Custom footer integration
 
-pi-speeed exposes footer text through pi extension status:
+pi-speeed exposes footer text through pi extension status. In TUI mode this text includes Pi theme color sequences for the speed value and label:
 
 ```ts
 ctx.ui.setStatus("pi-speeed", text);

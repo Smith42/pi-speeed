@@ -4,7 +4,6 @@ import type { Config } from "./config";
 export const RUNCAT_FRAMES = [" ", " ", " ", " ", " "];
 
 export type RunCatState = {
-	appliedAt: number;
 	intervalMs: number;
 };
 
@@ -26,16 +25,13 @@ export function applyRunCatIndicator(
 		return;
 	}
 	const nextInterval = runcatInterval(config, speed);
-	const now = Date.now();
-	const currentInterval = state.intervalMs || config.defaultRuncatIntervalMs;
-	const cycleMs = RUNCAT_FRAMES.length * currentInterval;
-	const phaseMs = state.appliedAt === 0 ? 0 : (now - state.appliedAt) % cycleMs;
-	const atFirstFrame = phaseMs < Math.max(32, currentInterval * 0.2);
 	const intervalChanged = Math.abs(nextInterval - state.intervalMs) >= 10;
-	if (!force && (!intervalChanged || !atFirstFrame)) return;
+	if (!force && !intervalChanged) return;
 
-	const indicator: WorkingIndicatorOptions = { frames: RUNCAT_FRAMES, intervalMs: nextInterval };
+	const indicator: WorkingIndicatorOptions = {
+		frames: RUNCAT_FRAMES.map((frame) => ctx.ui.theme.fg("accent", frame)),
+		intervalMs: nextInterval,
+	};
 	ctx.ui.setWorkingIndicator(indicator);
-	state.appliedAt = now;
 	state.intervalMs = nextInterval;
 }
