@@ -86,6 +86,7 @@ When `Label` or `Working prefix` is set to `Random`, pi-speeed chooses once per 
 
 Advanced token-speed options are intentionally hidden from the settings UI but can be edited in the config file:
 
+- `speedAnimationMs`
 - `slidingWindowMs`
 - `minReliableDurationMs`
 - `maxDisplayTokS`

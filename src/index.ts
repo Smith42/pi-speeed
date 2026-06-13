@@ -12,6 +12,7 @@ import {
 import { recordCompletedMessageSpeed } from "./history";
 import { applyRunCatIndicator, type RunCatState } from "./runcat";
 import { openSettings } from "./settings";
+import { SpeedAnimator } from "./speed-animation";
 import { SpeedTracker } from "./speed-tracker";
 import { loadStats, summarizeStats } from "./stats";
 import { showReadOnlyPanel } from "./ui";
@@ -23,9 +24,13 @@ export default function (pi: ExtensionAPI) {
 	let aggregateStats = loadStats();
 	const runcatState: RunCatState = { intervalMs: 0 };
 	const speedTracker = new SpeedTracker(config);
+	const liveSpeedAnimator = new SpeedAnimator(config.speedAnimationMs);
+	const footerSpeedAnimator = new SpeedAnimator(config.speedAnimationMs);
+	let liveAnimationTimer: ReturnType<typeof setInterval> | undefined;
+	let footerAnimationTimer: ReturnType<typeof setInterval> | undefined;
 
-	function renderFooterStatus(ctx: ExtensionContext) {
-		const speed = speedTracker.sessionAvgTokS();
+	function renderFooterStatus(ctx: ExtensionContext, speed = footerSpeedAnimator.value()) {
+		ensureOccurrence();
 		return ctx.hasUI ? renderStyledFooterTokS(ctx.ui.theme, config, occurrence, speed) : renderFooterTokS(config, occurrence, speed);
 	}
 
@@ -42,7 +47,11 @@ export default function (pi: ExtensionAPI) {
 	function applyConfig(ctx: ExtensionContext) {
 		saveConfig(config);
 		speedTracker.updateConfig(config);
+		liveSpeedAnimator.updateDuration(config.speedAnimationMs);
+		footerSpeedAnimator.updateDuration(config.speedAnimationMs);
 		if (!config.enabled) {
+			stopLiveAnimation();
+			stopFooterAnimation();
 			clearUi(ctx);
 			return;
 		}
@@ -54,16 +63,64 @@ export default function (pi: ExtensionAPI) {
 		if (occurrence.label === null || occurrence.workingPrefix === null) occurrence = chooseOccurrenceText(config);
 	}
 
+	function renderLiveSpeed(ctx: ExtensionContext) {
+		const speed = speedTracker.liveTokS();
+		const displayedSpeed = liveSpeedAnimator.setTarget(speed);
+		applyRunCatIndicator(ctx, config, runcatState, speed);
+		renderWorking(ctx, displayedSpeed);
+	}
+
+	function stopLiveAnimation() {
+		if (!liveAnimationTimer) return;
+		clearInterval(liveAnimationTimer);
+		liveAnimationTimer = undefined;
+	}
+
+	function startLiveAnimation(ctx: ExtensionContext) {
+		if (liveAnimationTimer || !ctx.hasUI) return;
+		liveAnimationTimer = setInterval(() => {
+			if (!config.enabled || !speedTracker.isStreaming) {
+				stopLiveAnimation();
+				return;
+			}
+			renderLiveSpeed(ctx);
+		}, config.renderIntervalMs);
+	}
+
+	function stopFooterAnimation() {
+		if (!footerAnimationTimer) return;
+		clearInterval(footerAnimationTimer);
+		footerAnimationTimer = undefined;
+	}
+
+	function startFooterAnimation(ctx: ExtensionContext) {
+		if (footerAnimationTimer || !ctx.hasUI) return;
+		footerAnimationTimer = setInterval(() => {
+			if (!config.enabled) {
+				stopFooterAnimation();
+				return;
+			}
+			updateStatus(ctx, config, renderFooterStatus(ctx));
+			if (!footerSpeedAnimator.isAnimating()) stopFooterAnimation();
+		}, config.renderIntervalMs);
+	}
+
 	function resetWorkingUi(ctx: ExtensionContext) {
 		ensureOccurrence();
 		refreshRunCat(ctx, null);
+		liveSpeedAnimator.reset(speedTracker.lastTokS);
 		renderWorking(ctx, speedTracker.lastTokS);
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
+		stopLiveAnimation();
+		stopFooterAnimation();
 		config = loadConfig();
 		speedTracker.updateConfig(config);
+		liveSpeedAnimator.updateDuration(config.speedAnimationMs);
+		footerSpeedAnimator.updateDuration(config.speedAnimationMs);
 		speedTracker.resetSession();
+		footerSpeedAnimator.reset(null);
 		refreshRunCat(ctx);
 		if (config.enabled && ctx.hasUI) updateStatus(ctx, config, renderFooterStatus(ctx));
 	});
@@ -79,9 +136,11 @@ export default function (pi: ExtensionAPI) {
 		resetWorkingUi(ctx);
 	});
 
-	pi.on("message_start", async (event) => {
+	pi.on("message_start", async (event, ctx) => {
 		if (!config.enabled || event.message?.role !== "assistant") return;
 		speedTracker.startMessage();
+		liveSpeedAnimator.reset(speedTracker.lastTokS);
+		startLiveAnimation(ctx);
 		lastRenderedAt = 0;
 	});
 
@@ -100,9 +159,7 @@ export default function (pi: ExtensionAPI) {
 		if (now - lastRenderedAt < config.renderIntervalMs && ev.type !== "done") return;
 		lastRenderedAt = now;
 
-		const speed = speedTracker.liveTokS();
-		applyRunCatIndicator(ctx, config, runcatState, speed);
-		renderWorking(ctx, speed);
+		renderLiveSpeed(ctx);
 	});
 
 	pi.on("message_end", async (event, ctx) => {
@@ -119,21 +176,31 @@ export default function (pi: ExtensionAPI) {
 			responseId: event.message.responseId,
 			stopReason: event.message.stopReason,
 		});
+		footerSpeedAnimator.setTarget(speedTracker.sessionAvgTokS());
 		updateStatus(ctx, config, renderFooterStatus(ctx));
+		startFooterAnimation(ctx);
 		refreshRunCat(ctx);
 	});
 
-	pi.on("turn_end", async () => speedTracker.stopMessage());
+	pi.on("turn_end", async () => {
+		speedTracker.stopMessage();
+		stopLiveAnimation();
+	});
 
 	pi.on("agent_end", async (_event, ctx) => {
 		speedTracker.stopMessage();
+		stopLiveAnimation();
 		refreshRunCat(ctx);
 		if (ctx.hasUI) ctx.ui.setWorkingMessage();
 		if (!config.enabled && ctx.hasUI) clearUi(ctx);
 		occurrence = { label: null, workingPrefix: null };
 	});
 
-	pi.on("session_shutdown", async (_event, ctx) => clearUi(ctx));
+	pi.on("session_shutdown", async (_event, ctx) => {
+		stopLiveAnimation();
+		stopFooterAnimation();
+		clearUi(ctx);
+	});
 
 	async function handleConfigCommand(args: string, ctx: ExtensionCommandContext) {
 		const [cmd] = args.trim().split(/\s+/).filter(Boolean);

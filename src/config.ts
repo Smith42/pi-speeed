@@ -20,6 +20,7 @@ export type Config = {
 	icon: string;
 	footer: boolean;
 	renderIntervalMs: number;
+	speedAnimationMs: number;
 	defaultRuncatIntervalMs: number;
 	minRuncatIntervalMs: number;
 	maxRuncatIntervalMs: number;
@@ -41,6 +42,7 @@ export const DEFAULT_CONFIG: Config = {
 	icon: "✦",
 	footer: true,
 	renderIntervalMs: 250,
+	speedAnimationMs: 1800,
 	defaultRuncatIntervalMs: 167,
 	minRuncatIntervalMs: 50,
 	maxRuncatIntervalMs: 250,
@@ -84,6 +86,7 @@ export function normalizeConfig(raw: unknown): Config {
 		icon: stringFrom(input.icon, DEFAULT_CONFIG.icon),
 		footer: booleanFrom(input.footer, DEFAULT_CONFIG.footer),
 		renderIntervalMs: positiveNumberFrom(input.renderIntervalMs, DEFAULT_CONFIG.renderIntervalMs),
+		speedAnimationMs: positiveNumberFrom(input.speedAnimationMs, DEFAULT_CONFIG.speedAnimationMs),
 		defaultRuncatIntervalMs: positiveNumberFrom(input.defaultRuncatIntervalMs, DEFAULT_CONFIG.defaultRuncatIntervalMs),
 		minRuncatIntervalMs: positiveNumberFrom(input.minRuncatIntervalMs, DEFAULT_CONFIG.minRuncatIntervalMs),
 		maxRuncatIntervalMs: positiveNumberFrom(input.maxRuncatIntervalMs, DEFAULT_CONFIG.maxRuncatIntervalMs),

@@ -7,6 +7,7 @@ describe("config", () => {
 			enabled: false,
 			label: "zoomies/s",
 			renderIntervalMs: 500,
+			speedAnimationMs: 1200,
 			useProviderTokens: false,
 			countStrategy: "direct",
 		});
@@ -14,6 +15,7 @@ describe("config", () => {
 		expect(config.enabled).toBe(false);
 		expect(config.label).toBe("zoomies/s");
 		expect(config.renderIntervalMs).toBe(500);
+		expect(config.speedAnimationMs).toBe(1200);
 		expect(config.useProviderTokens).toBe(false);
 		expect(config.countStrategy).toBe("direct");
 	});
@@ -23,6 +25,7 @@ describe("config", () => {
 			enabled: "yes",
 			label: 123,
 			renderIntervalMs: -1,
+			speedAnimationMs: 0,
 			countStrategy: "weird",
 			minRuncatIntervalMs: 500,
 			maxRuncatIntervalMs: 50,
@@ -31,6 +34,7 @@ describe("config", () => {
 		expect(config.enabled).toBe(DEFAULT_CONFIG.enabled);
 		expect(config.label).toBe(DEFAULT_CONFIG.label);
 		expect(config.renderIntervalMs).toBe(DEFAULT_CONFIG.renderIntervalMs);
+		expect(config.speedAnimationMs).toBe(DEFAULT_CONFIG.speedAnimationMs);
 		expect(config.countStrategy).toBe(DEFAULT_CONFIG.countStrategy);
 		expect(config.minRuncatIntervalMs).toBe(DEFAULT_CONFIG.minRuncatIntervalMs);
 		expect(config.maxRuncatIntervalMs).toBe(DEFAULT_CONFIG.maxRuncatIntervalMs);
