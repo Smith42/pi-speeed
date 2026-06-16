@@ -2,6 +2,10 @@
 
 A pi extension that shows assistant output speed with a configurable RunCat speed badge.
 
+## Screenshot
+
+![pi-speeed demo](https://raw.githubusercontent.com/somus/pi-speeed/main/assets/pi-speeed.gif)
+
 ## Features
 
 - Live output speed while the assistant is streaming, with bursty-stream guardrails.

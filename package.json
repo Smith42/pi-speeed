@@ -30,6 +30,7 @@
 		"prepack": "npm run check && npm run typecheck && npm test"
 	},
 	"files": [
+		"index.ts",
 		"src/",
 		"assets/",
 		"scripts/",
@@ -39,8 +40,9 @@
 	],
 	"pi": {
 		"extensions": [
-			"./src/index.ts"
-		]
+			"./index.ts"
+		],
+		"image": "https://raw.githubusercontent.com/somus/pi-speeed/main/assets/pi-speeed.gif"
 	},
 	"peerDependencies": {
 		"@earendil-works/pi-ai": "*",
