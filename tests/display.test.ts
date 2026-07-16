@@ -37,6 +37,19 @@ describe("display", () => {
 		);
 	});
 
+	it("cycles through multiple colours across flash phases", () => {
+		const theme = { fg: (color: string, text: string) => `<${color}>${text}</${color}>` } as unknown as Parameters<
+			typeof renderStyledWorkingTokS
+		>[0];
+		const tones = [0, 500, 1000, 1500, 2000, 2500].map(
+			(now) =>
+				renderStyledWorkingTokS(theme, DEFAULT_CONFIG, { label: "tok/s", workingPrefix: "Working..." }, 80, 0, now).match(
+					/^<([a-zA-Z]+)>/,
+				)?.[1] ?? "",
+		);
+		expect(tones).toEqual(["muted", "accent", "thinkingLow", "thinkingMedium", "thinkingHigh", "thinkingXhigh"]);
+	});
+
 	it("renders styled footer text with the same value and label treatment", () => {
 		const theme = { fg: (color: string, text: string) => `<${color}>${text}</${color}>` } as unknown as Parameters<
 			typeof renderStyledFooterTokS

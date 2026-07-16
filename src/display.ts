@@ -21,8 +21,9 @@ export type OccurrenceText = {
 
 // ponytail: flash cadence ~2Hz (500ms per state); phase 0 keeps the default muted tone
 // so tests and non-TUI callers stay deterministic when no `now` is supplied.
+// Phases 1+ cycle a vivid multi-colour palette using the theme's thinking gradient.
 const FLASH_PERIOD_MS = 500;
-const FLASH_TONES = ["muted", "accent"] as const;
+const FLASH_TONES = ["muted", "accent", "thinkingLow", "thinkingMedium", "thinkingHigh", "thinkingXhigh"] as const;
 
 export function formatElapsedMs(ms: number) {
 	if (!Number.isFinite(ms) || ms < 0) ms = 0;
