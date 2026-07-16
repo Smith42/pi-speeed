@@ -1,7 +1,9 @@
 import type { ExtensionContext, WorkingIndicatorOptions } from "@earendil-works/pi-coding-agent";
 import type { Config } from "./config";
 
-export const RUNCAT_FRAMES = [" ", " ", " ", " ", " "];
+// ponytail: stock Unicode emoji instead of the bundled runcat.ttf private-use glyphs,
+// which only render if the terminal font covers U+E900 (almost none do).
+export const RUNCAT_FRAMES = ["🐱", "😺", "😸", "😹", "😻", "😸", "😺", "🐱"];
 
 export type RunCatState = {
 	intervalMs: number;

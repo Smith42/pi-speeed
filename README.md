@@ -132,20 +132,11 @@ When `Persist session stats` is enabled, pi-speeed also appends session custom e
 customType: "pi-speeed-stats"
 ```
 
-## RunCat font
+## RunCat frames
 
-RunCat frames use private-use glyphs from the bundled RunCat font. `npm install` runs a postinstall script that installs `assets/runcat.ttf`:
+The working indicator cycles cat-face emoji (`🐱 😺 😸 😹 😻 …`), which render in any modern terminal with no extra font. No font install required.
 
-- macOS: `~/Library/Fonts/runcat.ttf`
-- Linux: `~/.local/share/fonts/runcat.ttf`
-
-Manual install:
-
-```bash
-npm run install-font
-```
-
-Restart your terminal or select the RunCat font if glyphs still show as boxes.
+Source inspiration: <https://github.com/FredySandoval/pi-runcat>
 
 Source inspiration: <https://github.com/FredySandoval/pi-runcat>
 
