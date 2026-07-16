@@ -21,8 +21,6 @@
 		"tok/s"
 	],
 	"scripts": {
-		"postinstall": "node scripts/install-font.mjs",
-		"install-font": "node scripts/install-font.mjs",
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
 		"typecheck": "tsc --noEmit",
@@ -33,7 +31,6 @@
 		"index.ts",
 		"src/",
 		"assets/",
-		"scripts/",
 		"README.md",
 		"LICENSE",
 		"tsconfig.json"
