@@ -3,7 +3,8 @@ import type { Config } from "./config";
 
 // ponytail: stock Unicode emoji; the original bundled runcat.ttf private-use glyphs
 // only rendered if the terminal font covered U+E900 (almost none do).
-export const RUNCAT_FRAMES = ["🐱", "😺", "😸", "😹", "😻", "😸", "😺", "🐱"];
+// ponytail: each frame doubled to halve the visible animation speed without touching intervalMs
+export const RUNCAT_FRAMES = ["🐱", "🐱", "😺", "😺", "😸", "😸", "😹", "😹", "😻", "😻", "😸", "😸", "😺", "😺", "🐱", "🐱"];
 
 export type RunCatState = {
 	intervalMs: number;
