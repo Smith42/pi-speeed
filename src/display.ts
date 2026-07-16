@@ -19,6 +19,26 @@ export type OccurrenceText = {
 	workingPrefix: string | null;
 };
 
+// ponytail: flash cadence ~2Hz (500ms per state); phase 0 keeps the default muted tone
+// so tests and non-TUI callers stay deterministic when no `now` is supplied.
+const FLASH_PERIOD_MS = 500;
+const FLASH_TONES = ["muted", "accent"] as const;
+
+export function formatElapsedMs(ms: number) {
+	if (!Number.isFinite(ms) || ms < 0) ms = 0;
+	const totalSeconds = Math.floor(ms / 1000);
+	if (totalSeconds < 60) return `${totalSeconds}s`;
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	return `${minutes}m${seconds.toString().padStart(2, "0")}s`;
+}
+
+function flashTone(config: Config, now = 0) {
+	if (!config.flashWorking) return "muted" as const;
+	const phase = Math.floor(now / FLASH_PERIOD_MS) % FLASH_TONES.length;
+	return FLASH_TONES[phase] ?? "muted";
+}
+
 export function chooseOccurrenceText(config: Config): OccurrenceText {
 	return {
 		label: resolvePreset(config.label, LABEL_PRESETS),
@@ -43,9 +63,10 @@ function speedBadge(config: Config, occurrence: OccurrenceText, speed: number | 
 	return `${config.icon} ${formatSpeed(config, occurrence, speed)}`;
 }
 
-export function renderWorkingTokS(config: Config, occurrence: OccurrenceText, speed: number | null) {
+export function renderWorkingTokS(config: Config, occurrence: OccurrenceText, speed: number | null, elapsedMs = 0) {
 	const left = occurrence.workingPrefix ?? resolvePreset(config.workingPrefix, WORKING_PREFIX_PRESETS);
-	return `${left}  ${speedBadge(config, occurrence, speed)}`;
+	const badge = speedBadge(config, occurrence, speed);
+	return config.workingTimer && elapsedMs > 0 ? `${left}  ${badge} (thinking for ${formatElapsedMs(elapsedMs)})` : `${left}  ${badge}`;
 }
 
 function styledSpeedText(theme: Theme, config: Config, occurrence: OccurrenceText, speed: number | null) {
@@ -70,9 +91,19 @@ export function renderStyledFooterTokS(theme: Theme, config: Config, occurrence:
 	return `${theme.fg("dim", config.footerPrefix)} ${speedText}`;
 }
 
-export function renderStyledWorkingTokS(theme: Theme, config: Config, occurrence: OccurrenceText, speed: number | null) {
+export function renderStyledWorkingTokS(
+	theme: Theme,
+	config: Config,
+	occurrence: OccurrenceText,
+	speed: number | null,
+	elapsedMs = 0,
+	now = 0,
+) {
 	const left = occurrence.workingPrefix ?? resolvePreset(config.workingPrefix, WORKING_PREFIX_PRESETS);
-	return `${theme.fg("muted", left)}  ${styledSpeedBadge(theme, config, occurrence, speed)}`;
+	const badge = styledSpeedBadge(theme, config, occurrence, speed);
+	const body = `${theme.fg(flashTone(config, now), left)}  ${badge}`;
+	if (!config.workingTimer || elapsedMs <= 0) return body;
+	return `${body} ${theme.fg("dim", `(thinking for ${formatElapsedMs(elapsedMs)})`)}`;
 }
 
 export function updateStatus(ctx: ExtensionContext, config: Config, text: string) {

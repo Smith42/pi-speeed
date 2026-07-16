@@ -50,6 +50,8 @@ export async function openSettings(
 		const choice = await ctx.ui.select("pi-speeed settings", [
 			`Enabled: ${config.enabled ? "on" : "off"}`,
 			`RunCat loader: ${config.runcat ? "on" : "off"}`,
+			`Flashing working text: ${config.flashWorking ? "on" : "off"}`,
+			`Thinking timer: ${config.workingTimer ? "on" : "off"}`,
 			`Label: ${displayPreset(config.label)}`,
 			`Footer status: ${config.footer ? "on" : "off"}`,
 			`Footer prefix: ${config.footerPrefix}`,
@@ -69,6 +71,8 @@ export async function openSettings(
 		config = { ...config };
 		if (choice.startsWith("Enabled:")) config.enabled = !config.enabled;
 		else if (choice.startsWith("RunCat loader:")) config.runcat = !config.runcat;
+		else if (choice.startsWith("Flashing working text:")) config.flashWorking = !config.flashWorking;
+		else if (choice.startsWith("Thinking timer:")) config.workingTimer = !config.workingTimer;
 		else if (choice.startsWith("Label:")) config.label = await pickPreset(ctx, "Speed label", config.label, LABEL_PRESETS, true);
 		else if (choice.startsWith("Footer status:")) config.footer = !config.footer;
 		else if (choice.startsWith("Footer prefix:"))

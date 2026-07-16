@@ -14,6 +14,8 @@ export type CountStrategy = "estimate" | "direct";
 export type Config = {
 	enabled: boolean;
 	runcat: boolean;
+	flashWorking: boolean;
+	workingTimer: boolean;
 	label: string;
 	footerPrefix: string;
 	workingPrefix: string;
@@ -36,6 +38,8 @@ export type Config = {
 export const DEFAULT_CONFIG: Config = {
 	enabled: true,
 	runcat: true,
+	flashWorking: true,
+	workingTimer: true,
 	label: "tok/s",
 	footerPrefix: "session avg",
 	workingPrefix: "Working...",
@@ -80,6 +84,8 @@ export function normalizeConfig(raw: unknown): Config {
 	const config: Config = {
 		enabled: booleanFrom(input.enabled, DEFAULT_CONFIG.enabled),
 		runcat: booleanFrom(input.runcat, DEFAULT_CONFIG.runcat),
+		flashWorking: booleanFrom(input.flashWorking, DEFAULT_CONFIG.flashWorking),
+		workingTimer: booleanFrom(input.workingTimer, DEFAULT_CONFIG.workingTimer),
 		label: stringFrom(input.label, DEFAULT_CONFIG.label),
 		footerPrefix: stringFrom(input.footerPrefix, DEFAULT_CONFIG.footerPrefix),
 		workingPrefix: stringFrom(input.workingPrefix, DEFAULT_CONFIG.workingPrefix),

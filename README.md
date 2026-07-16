@@ -11,6 +11,7 @@ A pi extension that shows assistant output speed with a configurable RunCat spee
 - Live output speed while the assistant is streaming, with bursty-stream guardrails.
 - Footer status for average speed across the current session.
 - RunCat working indicator whose animation speed follows token speed.
+- Flashing working text and a Claude-style "thinking for X" timer while the assistant works.
 - Custom speed labels, footer prefixes, and working text presets.
 - Interactive settings UI.
 - Aggregate speed stats and optional per-session stats entries.
@@ -76,6 +77,8 @@ Configurable from `/pi-speeed`:
 
 - Enabled on/off
 - RunCat loader on/off
+- Flashing working text on/off
+- Thinking timer on/off
 - Speed badge icon, including `none`
 - Speed label presets/custom/random
 - Footer status on/off

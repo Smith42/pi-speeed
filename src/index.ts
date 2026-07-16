@@ -28,6 +28,8 @@ export default function (pi: ExtensionAPI) {
 	const footerSpeedAnimator = new SpeedAnimator(config.speedAnimationMs);
 	let liveAnimationTimer: ReturnType<typeof setInterval> | undefined;
 	let footerAnimationTimer: ReturnType<typeof setInterval> | undefined;
+	let thinkingTimer: ReturnType<typeof setInterval> | undefined;
+	let turnStartedAt = 0;
 
 	function renderFooterStatus(ctx: ExtensionContext, speed = footerSpeedAnimator.value()) {
 		ensureOccurrence();
@@ -36,7 +38,9 @@ export default function (pi: ExtensionAPI) {
 
 	function renderWorking(ctx: ExtensionContext, speed = speedTracker.liveTokS()) {
 		if (!config.enabled || !ctx.hasUI) return;
-		ctx.ui.setWorkingMessage(renderStyledWorkingTokS(ctx.ui.theme, config, occurrence, speed));
+		const now = Date.now();
+		const elapsed = turnStartedAt ? now - turnStartedAt : 0;
+		ctx.ui.setWorkingMessage(renderStyledWorkingTokS(ctx.ui.theme, config, occurrence, speed, elapsed, now));
 	}
 
 	function refreshRunCat(ctx: ExtensionContext, speed = speedTracker.lastTokS, force = true) {
@@ -87,6 +91,23 @@ export default function (pi: ExtensionAPI) {
 		}, config.renderIntervalMs);
 	}
 
+	function stopThinkingAnimation() {
+		if (!thinkingTimer) return;
+		clearInterval(thinkingTimer);
+		thinkingTimer = undefined;
+	}
+
+	function startThinkingAnimation(ctx: ExtensionContext) {
+		if (thinkingTimer || !ctx.hasUI) return;
+		thinkingTimer = setInterval(() => {
+			if (!config.enabled) {
+				stopThinkingAnimation();
+				return;
+			}
+			renderWorking(ctx, speedTracker.lastTokS);
+		}, config.renderIntervalMs);
+	}
+
 	function stopFooterAnimation() {
 		if (!footerAnimationTimer) return;
 		clearInterval(footerAnimationTimer);
@@ -128,16 +149,21 @@ export default function (pi: ExtensionAPI) {
 	pi.on("agent_start", async (_event, ctx) => {
 		if (!config.enabled) return;
 		occurrence = chooseOccurrenceText(config);
+		turnStartedAt = Date.now();
 		resetWorkingUi(ctx);
+		startThinkingAnimation(ctx);
 	});
 
 	pi.on("turn_start", async (_event, ctx) => {
 		if (!config.enabled) return;
+		turnStartedAt = Date.now();
 		resetWorkingUi(ctx);
+		startThinkingAnimation(ctx);
 	});
 
 	pi.on("message_start", async (event, ctx) => {
 		if (!config.enabled || event.message?.role !== "assistant") return;
+		stopThinkingAnimation();
 		speedTracker.startMessage();
 		liveSpeedAnimator.reset(speedTracker.lastTokS);
 		startLiveAnimation(ctx);
@@ -184,11 +210,13 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("turn_end", async () => {
 		speedTracker.stopMessage();
+		stopThinkingAnimation();
 		stopLiveAnimation();
 	});
 
 	pi.on("agent_end", async (_event, ctx) => {
 		speedTracker.stopMessage();
+		stopThinkingAnimation();
 		stopLiveAnimation();
 		refreshRunCat(ctx);
 		if (ctx.hasUI) ctx.ui.setWorkingMessage();
@@ -197,6 +225,7 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.on("session_shutdown", async (_event, ctx) => {
+		stopThinkingAnimation();
 		stopLiveAnimation();
 		stopFooterAnimation();
 		clearUi(ctx);
